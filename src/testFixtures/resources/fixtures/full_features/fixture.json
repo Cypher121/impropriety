@@ -1,0 +1,68 @@
+{
+    "key": "value",
+    "eq1": "eqvalue1",
+    "eq2": "eqvalue2",
+    "eq3": "eqvalue3",
+    "eq4": "eqvalue4",
+    "col1": "colvalue1",
+    "col2": "colvalue2",
+    "col3": "colvalue3",
+    "col4": "colvalue4",
+    "mlalpha": "abcd",
+    "wsp1 ": "wspvalue1",
+    "wsp2 ": "wspvalue2",
+    "wsp 3": "wspvalue3",
+    "wsp4": "wsp value 4",
+    "=bseq1=": "bseqvalue1",
+    "=bseq2=": "bseqvalue2",
+    ":bscol1:": "bscolvalue1",
+    ":bscol2:": "bscolvalue2",
+    "-hyp1": "hypvalue1",
+    "--hyp2": "hypvalue2",
+    "->": "arrvalue",
+    "object1": {
+        "key": "value"
+    },
+    "object2": {
+        "key": "value"
+    },
+    "objempty": [],
+    "nestobj": {
+        "nested": {
+            "key": "value"
+        },
+        "nested2": [
+            "elem0",
+            "elem1",
+            "elem2"
+        ]
+    },
+    "list1": [
+        "a",
+        "b"
+    ],
+    "list2": [
+        "elem0",
+        "elem1",
+        "-_-",
+        "-O-",
+        [],
+        [],
+        "->"
+    ],
+    "nestlist": [
+        {
+            "key": "value"
+        },
+        {
+            "key": "value2"
+        },
+        [
+            "elem0",
+            "elem1",
+            "elem2"
+        ]
+    ],
+    "objwith->arr": [],
+    "objwith->": []
+}
