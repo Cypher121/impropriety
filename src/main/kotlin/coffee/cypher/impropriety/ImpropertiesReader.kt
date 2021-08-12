@@ -1,9 +1,11 @@
 package coffee.cypher.impropriety
 
-import coffee.cypher.impropriety.model.*
+import coffee.cypher.impropriety.model.ImpNode
+import coffee.cypher.impropriety.model.ImpObject
 import org.antlr.v4.runtime.*
-import java.io.*
-import java.lang.IllegalArgumentException
+import org.antlr.v4.runtime.misc.ParseCancellationException
+import java.io.File
+import java.io.FileNotFoundException
 
 /**
  * Reads and parses an improperties file for conversion into other formats.
@@ -49,25 +51,17 @@ public class ImpropertiesReader private constructor(stream: CharStream) {
     private val map: Map<String, Any>
 
     init {
+        val listener = AccumulatingErrorListener()
+
         val parser = stream
             .let(::ImpropertiesLexer)
+            .also { it.replaceListener(listener) }
             .let(::CommonTokenStream)
             .let(::ImpropertiesParser)
+            .also { it.replaceListener(listener) }
 
-        parser.addErrorListener(object : BaseErrorListener() {
-            override fun syntaxError(
-                recognizer: Recognizer<*, *>,
-                offendingSymbol: Any,
-                line: Int,
-                charPositionInLine: Int,
-                msg: String,
-                e: RecognitionException
-            ) {
-                throw IllegalArgumentException("Malformed improperties", e)
-            }
-        })
 
-        map = parser.file().`val`
+        this.map = parser.file().`val`.also { listener.validate() }
     }
 
     /**
@@ -81,4 +75,36 @@ public class ImpropertiesReader private constructor(stream: CharStream) {
      * Converts the input to an [ImpObject] for use with the [ImpNode] API.
      */
     public fun toObject(): ImpObject = ImpObject("<root>", map)
+}
+
+private fun Recognizer<*, *>.replaceListener(replacement: ANTLRErrorListener) {
+    removeErrorListener(ConsoleErrorListener.INSTANCE)
+    addErrorListener(replacement)
+}
+
+private class AccumulatingErrorListener : BaseErrorListener() {
+    private val messages = mutableListOf<String>()
+
+    override fun syntaxError(
+        recognizer: Recognizer<*, *>?,
+        offendingSymbol: Any?,
+        line: Int,
+        charPositionInLine: Int,
+        msg: String,
+        e: RecognitionException?
+    ) {
+        messages += "${msg.replace("\n", "\\n")} at position $line:$charPositionInLine"
+    }
+
+    fun validate() {
+        if (messages.isNotEmpty()) {
+            val errorMessage =
+                """
+                    |Failed to parse improperties input, ${messages.size} errors encountered:
+                    |${messages.joinToString("\n") { it.prependIndent() }}
+                """.trimMargin()
+
+            throw IllegalArgumentException(errorMessage)
+        }
+    }
 }

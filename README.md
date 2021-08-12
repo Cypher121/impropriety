@@ -22,7 +22,7 @@ dependencies {
 <dependency>
     <groupId>coffee.cypher.impropriety</groupId>
     <artifactId>impropriety</artifactId>
-    <version>1.0.0</version>
+    <version>RELEASE</version>
 </dependency>
 ```
 
