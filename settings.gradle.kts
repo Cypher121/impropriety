@@ -35,7 +35,7 @@ dependencyResolutionManagement {
 
         alias("kotlin-reflect").to("org.jetbrains.kotlin", "kotlin-reflect").versionRef("kotlin")
 
-        alias("jackson-kotlin").to("com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.13.+")
+        alias("jackson-kotlin").to("com.fasterxml.jackson.module", "jackson-module-kotlin").version("2.13.0-rc1")
 
         bundle("testing-core", listOf("spek-dsl", "kotlin-test"))
         bundle("testing-runtime", listOf("spek-runner", "spek-runtime", "kotlin-reflect"))

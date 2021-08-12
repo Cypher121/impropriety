@@ -118,10 +118,14 @@ tasks {
     }
 }
 
+dependencyLocking.lockAllConfigurations()
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
             from(components["java"])
+
+            suppressAllPomMetadataWarnings()
 
             pom {
                 name.set("Impropriety")
@@ -160,4 +164,8 @@ nexusPublishing {
     repositories {
         sonatype()
     }
+}
+
+signing {
+    sign(publishing.publications["maven"])
 }

@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("coffee.cypher.impropriety:impropriety:1.+")
+    implementation("coffee.cypher.impropriety:impropriety:latest.release")
 }
 ```
 
@@ -75,3 +75,13 @@ writer.writeToFile(data, "some_other/file.improperties")
 
 * List markers must be followed by whitespace (`- element`, not `-element`)
 
+## Using test fixtures in other projects
+
+If you wish to use Impropriety's test fixtures in another project using Gradle,
+you can add them as a test dependendy as follows.
+
+```kotlin
+dependencies {
+    testImplementation(testFixtures("coffee.cypher.impropriety:impropriety:latest.release"))
+}
+```
