@@ -46,7 +46,7 @@ ImpropertiesWriter writer = new ImpropertiesWriter.Builder()
         .keyValueJoiner(": ")
         .build();
 
-Map<String, Object> data = ...;
+Map<String, Object> data = someDataSource();
 
 writer.writeToFile(data, "some_other/file.improperties")
 ```
@@ -67,7 +67,7 @@ val writer = ImpropertiesWriter(
     keyValueJoiner = ": "
 )
 
-val data: Map<String, Any> = ...
+val data: Map<String, Any> = someDataSource()
 writer.writeToFile(data, "some_other/file.improperties")
 ```
 
