@@ -78,7 +78,7 @@ writer.writeToFile(data, "some_other/file.improperties")
 ## Using test fixtures in other projects
 
 If you wish to use Impropriety's test fixtures in another project using Gradle,
-you can add them as a test dependendy as follows.
+you can add them as a test dependency as follows.
 
 ```kotlin
 dependencies {
