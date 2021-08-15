@@ -2,6 +2,7 @@ import java.net.URL
 
 plugins {
     kotlin("jvm")
+    kotlin("plugin.serialization")
     antlr
     `maven-publish`
     signing
@@ -40,13 +41,16 @@ dependencies {
     antlr(libs.antlr.full)
     implementation(libs.antlr.runtime)
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.2.2")
 
     testImplementation(libs.bundles.testing.core)
     testRuntimeOnly(libs.bundles.testing.runtime)
 
-    testFixturesImplementation(libs.jackson.kotlin)
+    testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
+
 }
 
+//fix antlr plugin's mess
 configurations.api {
     setExtendsFrom(extendsFrom.filterNot { it.name == "antlr" })
 }
@@ -59,6 +63,7 @@ sourceSets.all {
 }
 
 tasks {
+    //configure antlr
     val relocateSources = register<Copy>("relocateSources") {
         dependsOn(generateGrammarSource)
 
@@ -71,50 +76,53 @@ tasks {
         }
     }
 
-    //use kotlin versions instead!
-    named("javadocJar") {
-        dependsOn(dokkaJavadoc)
+    generateGrammarSource {
+        arguments = listOf("-visitor")
     }
 
-    javadoc {
+    //use dokka for javadoc
+    withType<Jar> {
+        if ("javadoc" in archiveClassifier.get()) {
+            dependsOn(dokkaJavadoc)
+        }
+    }
+
+    withType<Javadoc> {
         enabled = false
     }
 
+    //depend on processed antlr sources
     named("sourcesJar") {
         dependsOn(relocateSources)
     }
 
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    named("compileKotlin") {
         dependsOn(relocateSources)
-    }
-
-    generateGrammarSource {
-        arguments = listOf("-visitor")
     }
 
     dokkaJavadoc {
         dependsOn(relocateSources)
 
-        dokkaSourceSets.named("main") {
+        dokkaSourceSets.all {
             reportUndocumented.set(true)
 
             sourceLink {
-                localDirectory.set(file("src/main/kotlin"))
+                localDirectory.set(file("src/$name/kotlin"))
                 remoteLineSuffix.set("#L")
-                remoteUrl.set(URL("https://github.com/Cypher121/impropriety/blob/master/src/main/kotlin"))
+                remoteUrl.set(URL("https://github.com/Cypher121/impropriety/blob/master/src/$name/kotlin"))
             }
         }
-    }
-
-    wrapper {
-        distributionType = Wrapper.DistributionType.ALL
-        gradleVersion = "7.2-rc-2"
     }
 
     test {
         useJUnitPlatform {
             includeEngines("spek2")
         }
+    }
+
+    wrapper {
+        distributionType = Wrapper.DistributionType.ALL
+        gradleVersion = "7.2-rc-3"
     }
 }
 

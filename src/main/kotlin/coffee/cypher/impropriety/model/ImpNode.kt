@@ -1,9 +1,13 @@
 package coffee.cypher.impropriety.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * An improperties file node. Will always be one of [ImpList], [ImpObject], [ImpValue], or [ImpMissing].
  * Has methods to convert to any of those, or traverse the file before specifying the final type.
  */
+
+@Serializable
 public sealed class ImpNode protected constructor(private val path: String, private val description: String) {
 
     /**

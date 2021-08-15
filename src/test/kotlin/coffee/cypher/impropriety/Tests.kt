@@ -35,7 +35,9 @@ fun GroupBody.testForFixture(fixture: ImpropertiesWriterFixture) {
     }
 
     test(fixture.base.name) {
-        val result = fixture.params.makeWriter().writeToString(fixture.base.data)
+        val result = Improperties { writer(fixture.params) }.encodeToString(
+            fixture.base.data
+        )
 
         assertEquals(
             fixture.base.source.forComparison(),
