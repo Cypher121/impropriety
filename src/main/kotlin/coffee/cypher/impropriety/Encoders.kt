@@ -4,23 +4,25 @@ package coffee.cypher.impropriety
 
 import coffee.cypher.impropriety.configuration.WriterConfig
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.StructureKind
 import kotlinx.serialization.encoding.AbstractEncoder
 import kotlinx.serialization.encoding.CompositeEncoder
+import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.modules.SerializersModule
-import kotlin.IllegalArgumentException
 
-internal class ImpropertiesFileEncoder(
+internal sealed class ImpropertiesFileEncoder(
     private val writerConfig: WriterConfig,
     private val destination: Appendable,
     override val serializersModule: SerializersModule
-) : AbstractEncoder() {
-    override fun encodeValue(value: Any) {
-        throw IllegalArgumentException("Improperties cannot encode top-level values like $value")
-    }
-
-    override fun beginCollection(descriptor: SerialDescriptor, collectionSize: Int): CompositeEncoder {
-        //throw IllegalArgumentException("Improperties cannot encode top-level lists")
+) : Encoder {
+    override fun beginCollection(
+        descriptor: SerialDescriptor,
+        collectionSize: Int
+    ): CompositeEncoder {
         return ImpropertiesListEncoder(
             writerConfig = writerConfig,
             indentLevel = 0,
@@ -37,15 +39,80 @@ internal class ImpropertiesFileEncoder(
             serializersModule = serializersModule
         ) {}
     }
+
+    private fun createSubEncoder(descriptor: SerialDescriptor): CompositeEncoder {
+        return when (descriptor.kind) {
+            StructureKind.CLASS -> TODO()
+            StructureKind.LIST, is PolymorphicKind -> TODO()
+            StructureKind.MAP -> TODO()
+            else -> throw IllegalArgumentException()
+        }
+    }
+
+    override fun encodeBoolean(value: Boolean) {
+        unsupportedValue(value)
+    }
+
+    override fun encodeByte(value: Byte) {
+        unsupportedValue(value)
+    }
+
+    override fun encodeChar(value: Char) {
+        unsupportedValue(value)
+    }
+
+    override fun encodeDouble(value: Double) {
+        unsupportedValue(value)
+    }
+
+    override fun encodeEnum(enumDescriptor: SerialDescriptor, index: Int) {
+        unsupportedValue(enumDescriptor.getElementName(index))
+    }
+
+    override fun encodeFloat(value: Float) {
+        unsupportedValue(value)
+    }
+
+    @ExperimentalSerializationApi
+    override fun encodeInline(inlineDescriptor: SerialDescriptor): Encoder {
+        return this
+    }
+
+    override fun encodeInt(value: Int) {
+        unsupportedValue(value)
+    }
+
+    override fun encodeLong(value: Long) {
+        unsupportedValue(value)
+    }
+
+    @ExperimentalSerializationApi
+    override fun encodeNull() {
+        unsupportedValue("null")
+    }
+
+    override fun encodeShort(value: Short) {
+        unsupportedValue(value)
+    }
+
+    override fun encodeString(value: String) {
+        unsupportedValue(value)
+    }
+
+    private fun unsupportedValue(value: Any): Nothing {
+        throw ImpropertiesSerializationException(
+            "Cannot encode top-level value: `$value`"
+        )
+    }
 }
 
-internal sealed class BaseImpropertiesEncoder(
+internal class BaseImpropertiesEncoder(
     protected val writerConfig: WriterConfig,
     protected val indentLevel: Int,
     protected val destination: Appendable,
     override val serializersModule: SerializersModule,
     private val onDone: (BaseImpropertiesEncoder) -> Unit
-) : AbstractEncoder() {
+) : CompositeEncoder {
     protected fun appendIndent() = destination.apply {
         repeat(indentLevel) {
             destination.append(writerConfig.indentString)
@@ -53,8 +120,12 @@ internal sealed class BaseImpropertiesEncoder(
     }
 
     protected fun appendLiteral(literal: String) = destination.apply {
-        val escaped = literal.replace("([#\\-\\s\t\r\n\\\\=:])".toRegex(), "\\\$1")
-            .replace("\n", "\n${writerConfig.indentString.repeat(indentLevel + 1)}")
+        val escaped =
+            literal.replace("([#\\-\\s\t\r\n\\\\=:])".toRegex(), "\\\$1")
+                .replace(
+                    "\n",
+                    "\n${writerConfig.indentString.repeat(indentLevel + 1)}"
+                )
 
         append(escaped)
     }
@@ -91,7 +162,10 @@ internal sealed class BaseImpropertiesEncoder(
         destination.appendLine()
     }
 
-    override fun encodeElement(descriptor: SerialDescriptor, index: Int): Boolean {
+    override fun encodeElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Boolean {
         if (super.encodeElement(descriptor, index)) {
             beforeElement(descriptor.getElementName(index))
 
@@ -99,6 +173,109 @@ internal sealed class BaseImpropertiesEncoder(
         }
 
         return false
+    }
+
+    abstract fun encodeElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Any
+    )
+
+    override fun encodeBooleanElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Boolean
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeByteElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Byte
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeCharElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Char
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeDoubleElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Double
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeFloatElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Float
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    @ExperimentalSerializationApi
+    override fun encodeInlineElement(
+        descriptor: SerialDescriptor,
+        index: Int
+    ): Encoder = this
+
+    override fun encodeIntElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Int
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeLongElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Long
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    @ExperimentalSerializationApi
+    override fun <T : Any> encodeNullableSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T?
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun <T> encodeSerializableElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        serializer: SerializationStrategy<T>,
+        value: T
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeShortElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: Short
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun encodeStringElement(
+        descriptor: SerialDescriptor,
+        index: Int,
+        value: String
+    ) {
+        TODO("Not yet implemented")
     }
 
     override fun endStructure(descriptor: SerialDescriptor) {
@@ -112,7 +289,13 @@ internal class ImpropertiesObjectEncoder(
     destination: Appendable,
     serializersModule: SerializersModule,
     onDone: (BaseImpropertiesEncoder) -> Unit
-) : BaseImpropertiesEncoder(writerConfig, indentLevel, destination, serializersModule, onDone) {
+) : BaseImpropertiesEncoder(
+    writerConfig,
+    indentLevel,
+    destination,
+    serializersModule,
+    onDone
+) {
     override fun beforeElement(name: String) {
         super.beforeElement(name)
         appendLiteral(name)
@@ -129,7 +312,13 @@ internal class ImpropertiesListEncoder(
     destination: Appendable,
     serializersModule: SerializersModule,
     onDone: (BaseImpropertiesEncoder) -> Unit
-) : BaseImpropertiesEncoder(writerConfig, indentLevel, destination, serializersModule, onDone) {
+) : BaseImpropertiesEncoder(
+    writerConfig,
+    indentLevel,
+    destination,
+    serializersModule,
+    onDone
+) {
     override fun beforeElement(name: String) {
         super.beforeElement(name)
         destination.append('-')
@@ -138,4 +327,14 @@ internal class ImpropertiesListEncoder(
     override fun beforeValue() {
         destination.append(' ')
     }
+}
+
+public class ImpropertiesSerializationException : SerializationException {
+    internal constructor()
+
+    internal constructor(message: String?) : super(message)
+
+    internal constructor(message: String?, cause: Throwable?) : super(message, cause)
+
+    internal constructor(cause: Throwable?) : super(cause)
 }

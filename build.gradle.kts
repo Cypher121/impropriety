@@ -46,6 +46,7 @@ dependencies {
     testImplementation(libs.bundles.testing.core)
     testRuntimeOnly(libs.bundles.testing.runtime)
 
+    testImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
     testFixturesImplementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2")
 
 }
@@ -165,6 +166,12 @@ publishing {
 
     repositories {
         mavenLocal()
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(16))
     }
 }
 
