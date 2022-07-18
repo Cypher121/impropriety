@@ -1,10 +1,8 @@
 package coffee.cypher.impropriety
 
-import coffee.cypher.impropriety.configuration.WriterConfig
-
 data class ImpropertiesWriterFixture(
     val base: ImpropertiesFixture,
-    val params: WriterConfig
+    val params: Params
 ) {
     companion object {
         @JvmStatic
@@ -13,7 +11,7 @@ data class ImpropertiesWriterFixture(
         @JvmField
         val SIMPLE_FIELDS = ImpropertiesWriterFixture(
             fixtureFromFiles("writing simple fields"),
-            WriterConfig(
+            Params(
                 indent = 2,
                 topLevelSpacing = 1,
                 innerSpacing = 0,
@@ -24,7 +22,7 @@ data class ImpropertiesWriterFixture(
         @JvmField
         val COMPOSITE_VALUES = ImpropertiesWriterFixture(
             fixtureFromFiles("writing composite values"),
-            WriterConfig(
+            Params(
                 indent = 4,
                 topLevelSpacing = 0,
                 innerSpacing = 1,
@@ -32,4 +30,11 @@ data class ImpropertiesWriterFixture(
             )
         )
     }
+
+    data class Params(
+        val indent: Int,
+        val keyValueJoiner: String,
+        val topLevelSpacing: Int,
+        val innerSpacing: Int
+    )
 }
