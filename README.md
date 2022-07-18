@@ -1,4 +1,5 @@
 [![Maven Central badge](https://img.shields.io/maven-central/v/coffee.cypher.impropriety/impropriety?style=flat-square)](https://search.maven.org/artifact/coffee.cypher.impropriety/impropriety)
+[![Build and check](https://github.com/Cypher121/impropriety/actions/workflows/build-and-check.yml/badge.svg)](https://github.com/Cypher121/impropriety/actions/workflows/build-and-check.yml)
 
 # Impropriety
 A JVM parser for [Improperties](https://github.com/FoundationGames/Improperties-Specification).
